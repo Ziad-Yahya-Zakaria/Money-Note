@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppLockGate } from "@/components/AppLockGate";
+import { StartupSplash } from "@/components/StartupSplash";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Associations from "./pages/Associations.tsx";
@@ -59,9 +60,11 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <AppLockGate>
-        <AppContent />
-      </AppLockGate>
+      <StartupSplash>
+        <AppLockGate>
+          <AppContent />
+        </AppLockGate>
+      </StartupSplash>
     </TooltipProvider>
   </QueryClientProvider>
 );
