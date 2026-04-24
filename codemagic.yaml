@@ -24,7 +24,12 @@ workflows:
       - name: Build Vite
         script: npm run build
 
-      - name: Init & Build Android APK
+      - name: Init Android
+        script: |
+          source $HOME/.cargo/env
+          cargo tauri android init
+
+      - name: Build Android APK
         script: |
           source $HOME/.cargo/env
           cargo tauri android build
