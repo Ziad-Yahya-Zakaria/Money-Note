@@ -10,16 +10,16 @@ jobs:
       - run:
           name: Install Rust and Android NDK
           command: |
-            # 1. تثبيت Rust
+            # 1. تثبيت Rust (بما إنه اتثبت قبل كدة فده هيأكد وجوده بس)
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
             source $HOME/.cargo/env
             rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
             
-            # 2. تثبيت الـ NDK وتجهيز المسارات
-            # بنستخدم sdkmanager لتثبيت نسخة مستقرة من الـ NDK
-            yes | sdkmanager --install "ndk;26.1.10909125"
+            # 2. تثبيت الـ NDK بطريقة تمنع خطأ 141
+            # استخدمنا --quiet عشان مايطلعش نصوص كتير تسبب المشكلة
+            echo "y" | sdkmanager --install "ndk;26.1.10909125" --quiet
             
-            # تعريف المتغيرات للنظام عشان Tauri يشوف الـ NDK
+            # تعريف المسارات
             echo 'export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/26.1.10909125' >> $BASH_ENV
             echo 'export NDK_HOME=$ANDROID_HOME/ndk/26.1.10909125' >> $BASH_ENV
             
@@ -35,7 +35,6 @@ jobs:
           name: Initialize and Build Signed APK
           command: |
             source $HOME/.cargo/env
-            # تفعيل مسارات الـ NDK في هذه الخطوة أيضاً
             source $BASH_ENV
             
             # تجهيز المشروع
@@ -43,7 +42,7 @@ jobs:
             
             # إعدادات التوقيع
             export TAURI_ANDROID_KEYSTORE_PATH="$CIRCLE_WORKING_DIRECTORY/my-release-key.keystore"
-            export TAURI_ANDROID_KEYSTORE_PASSWORD=$ANDROID_KEY_PASSWORD
+            export TAURI_ANDROID_KEYSTORE_PASSWORD=$ANDROID_KEYSTORE_PASSWORD
             export TAURI_ANDROID_KEY_ALIAS=$ANDROID_KEY_ALIAS
             export TAURI_ANDROID_KEY_PASSWORD=$ANDROID_KEY_PASSWORD
             
