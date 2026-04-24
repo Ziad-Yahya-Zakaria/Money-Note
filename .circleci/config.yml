@@ -3,49 +3,43 @@ version: 2.1
 jobs:
   build-android:
     docker:
-      - image: cimg/node:20.0
+      # صورة مجهزة بـ Android SDK و Java
+      - image: cimg/android:2024.01-node
     steps:
       - checkout
       
       - run:
-          name: Install System Dependencies (Java & Rust)
+          name: Install Rust and Tauri
           command: |
-            sudo apt-get update
-            sudo apt-get install -y openjdk-17-jdk
-            
-            # تثبيت لغة Rust الرسمية
+            # تثبيت Rust
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-            
-            # تفعيل Rust في بيئة CircleCI الحالية والمستقبلية
-            echo 'source $HOME/.cargo/env' >> $BASH_ENV
             source $HOME/.cargo/env
             
-            # إضافة حزم بناء الأندرويد لـ Rust (ضرورية جداً لـ Tauri)
+            # إضافة أهداف الأندرويد لـ Rust
             rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
             
-            # تثبيت Tauri CLI عالمياً
+            # تثبيت Tauri CLI
             sudo npm install -g @tauri-apps/cli
 
       - run:
           name: Install Node Dependencies
           command: |
-            # مسح المجلدات القديمة لتجنب تضارب الملفات الأصلية
-            rm -rf node_modules package-lock.json
-            sudo npm install --include=optional --platform=linux --arch=x64
+            npm install --include=optional --platform=linux --arch=x64
 
       - run:
           name: Build Signed APK
           command: |
-            # تفعيل Rust في هذه الخطوة أيضاً لضمان قراءة الأوامر
+            # تفعيل Rust للتأكد من وجود Cargo
             source $HOME/.cargo/env
             
+            # إعدادات التوقيع
             export TAURI_ANDROID_KEYSTORE_PATH="$CIRCLE_WORKING_DIRECTORY/my-release-key.keystore"
-            export TAURI_ANDROID_KEYSTORE_PASSWORD=$ANDROID_KEYSTORE_PASSWORD
+            export TAURI_ANDROID_KEYSTORE_PASSWORD=$ANDROID_KEY_PASSWORD
             export TAURI_ANDROID_KEY_ALIAS=$ANDROID_KEY_ALIAS
             export TAURI_ANDROID_KEY_PASSWORD=$ANDROID_KEY_PASSWORD
             
-            # تنفيذ أمر البناء النهائي
-            sudo tauri android build --apk -- --release
+            # البناء النهائي
+            tauri android build --apk -- --release
 
       - store_artifacts:
           path: src-tauri/gen/android/app/build/outputs/apk/release/
