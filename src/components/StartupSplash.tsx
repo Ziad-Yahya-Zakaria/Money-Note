@@ -1,68 +1,75 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
-const MIN_SPLASH_MS = 1800;
-const MAX_WAIT_FOR_IMAGE_MS = 2500;
+const MIN_SPLASH_MS = 1600;
+const MAX_WAIT_FOR_FONTS_MS = 2500;
 
 export function StartupSplash({ children }: { children: React.ReactNode }) {
   const [minDelayDone, setMinDelayDone] = useState(false);
-  const [imageReady, setImageReady] = useState(false);
-  const [imageFailed, setImageFailed] = useState(false);
-
-  const splashSrc = useMemo(
-    () => `${import.meta.env.BASE_URL}splash-screen.png`,
-    [],
-  );
+  const [fontsReady, setFontsReady] = useState(false);
 
   useEffect(() => {
     const minDelayTimer = window.setTimeout(() => {
       setMinDelayDone(true);
     }, MIN_SPLASH_MS);
 
+    let cancelled = false;
+
+    const readyFonts = async () => {
+      try {
+        if ("fonts" in document) {
+          await Promise.all([
+            document.fonts.load('900 48px "Thmanyah Serif Display"'),
+            document.fonts.load('700 24px "Thmanyah Sans"'),
+            document.fonts.ready,
+          ]);
+        }
+      } finally {
+        if (!cancelled) {
+          setFontsReady(true);
+        }
+      }
+    };
+
+    readyFonts();
+
     const fallbackTimer = window.setTimeout(() => {
-      setImageFailed((current) => current || !imageReady);
-      setImageReady(true);
-    }, MAX_WAIT_FOR_IMAGE_MS);
+      if (!cancelled) {
+        setFontsReady(true);
+      }
+    }, MAX_WAIT_FOR_FONTS_MS);
 
     return () => {
+      cancelled = true;
       window.clearTimeout(minDelayTimer);
       window.clearTimeout(fallbackTimer);
     };
-  }, [imageReady]);
+  }, []);
 
-  const showSplash = !minDelayDone || !imageReady;
+  const showSplash = !minDelayDone || !fontsReady;
 
   return (
     <>
       {showSplash && (
         <div
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-[#737a78]"
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-[#737a78] px-6 text-white"
           aria-label="شاشة بدء التطبيق"
           role="img"
         >
-          {!imageFailed ? (
-            <>
-              <img
-                src={splashSrc}
-                alt="موني نوت"
-                className="h-full w-full object-contain"
-                onLoad={() => setImageReady(true)}
-                onError={() => {
-                  setImageFailed(true);
-                  setImageReady(true);
-                }}
-              />
-              <span className="sr-only">موني نوت</span>
-            </>
-          ) : (
-            <div className="flex h-full w-full flex-col items-center justify-center px-6 text-center text-white">
-              <h1 className="text-6xl font-black tracking-tight">موني نوت</h1>
-              <p className="mt-32 text-3xl font-bold leading-relaxed">
-                تطوير
-                <br />
-                المبرمج زياد يحيى
-              </p>
+          <div className="flex h-full w-full flex-col items-center justify-center text-center">
+            <div className="flex-1" />
+            <div className="w-full max-w-md">
+              <h1 className="font-brand-display text-6xl font-black leading-none tracking-tight sm:text-7xl">
+                موني نوت
+              </h1>
             </div>
-          )}
+            <div className="flex-1" />
+            <p className="font-ui text-3xl font-black leading-[1.45] tracking-tight sm:text-4xl">
+              تطوير
+              <br />
+              المبرمج زياد يحيى
+            </p>
+            <div className="safe-bottom h-8" />
+          </div>
         </div>
       )}
 

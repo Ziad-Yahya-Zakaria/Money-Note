@@ -32,7 +32,7 @@ export function AppLockGate({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     syncState();
 
-    const handleVisibilityChange = () => {
+    const handleLifecycleLock = () => {
       const settings = getSecuritySettings();
       if (document.hidden && settings.pinEnabled && settings.lockOnBackground) {
         lockAppSession();
@@ -41,12 +41,14 @@ export function AppLockGate({ children }: { children: React.ReactNode }) {
 
     window.addEventListener(SECURITY_CHANGED_EVENT, syncState);
     window.addEventListener(LOCK_CHANGED_EVENT, syncState);
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleLifecycleLock);
+    window.addEventListener("pagehide", handleLifecycleLock);
 
     return () => {
       window.removeEventListener(SECURITY_CHANGED_EVENT, syncState);
       window.removeEventListener(LOCK_CHANGED_EVENT, syncState);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      document.removeEventListener("visibilitychange", handleLifecycleLock);
+      window.removeEventListener("pagehide", handleLifecycleLock);
     };
   }, [syncState]);
 

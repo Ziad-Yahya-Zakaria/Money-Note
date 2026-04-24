@@ -2,14 +2,60 @@
 @tailwind components;
 @tailwind utilities;
 
-/* موني نوت — نظام التصميم البنفسجي الليلي */
+@font-face {
+  font-family: "Thmanyah Sans";
+  src: url("/fonts/thmanyahsans-regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Thmanyah Sans";
+  src: url("/fonts/thmanyahsans-medium.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Thmanyah Sans";
+  src: url("/fonts/thmanyahsans-bold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Thmanyah Sans";
+  src: url("/fonts/thmanyahsans-black.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Thmanyah Serif Display";
+  src: url("/fonts/thmanyahserifdisplay-bold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Thmanyah Serif Display";
+  src: url("/fonts/thmanyahserifdisplay-black.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+}
+
 @layer base {
   :root {
-    /* الخلفيات */
-    --background: 240 53% 6%;          /* #0a0a1a */
+    --background: 240 53% 6%;
     --foreground: 230 30% 95%;
 
-    --surface: 240 52% 14%;            /* #141432 */
+    --surface: 240 52% 14%;
     --surface-elevated: 240 50% 18%;
 
     --card: 240 52% 11%;
@@ -18,12 +64,11 @@
     --popover: 240 52% 11%;
     --popover-foreground: 230 30% 95%;
 
-    /* البنفسجي الإلكتروني */
-    --primary: 239 84% 60%;            /* #4f46e5 */
+    --primary: 239 84% 60%;
     --primary-foreground: 0 0% 100%;
     --primary-glow: 250 95% 70%;
 
-    --secondary: 240 60% 24%;          /* #1e1e5a */
+    --secondary: 240 60% 24%;
     --secondary-foreground: 230 30% 95%;
 
     --muted: 240 30% 18%;
@@ -47,7 +92,6 @@
 
     --radius: 1rem;
 
-    /* تدرجات وتأثيرات */
     --gradient-primary: linear-gradient(135deg, hsl(239 84% 60%), hsl(265 85% 65%));
     --gradient-surface: linear-gradient(180deg, hsl(240 52% 11%), hsl(240 53% 8%));
     --gradient-glow: radial-gradient(circle at 50% 0%, hsl(239 84% 60% / 0.25), transparent 70%);
@@ -58,7 +102,6 @@
 
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-    /* sidebar (غير مستخدم لكنه مطلوب) */
     --sidebar-background: 240 52% 11%;
     --sidebar-foreground: 230 30% 95%;
     --sidebar-primary: 239 84% 60%;
@@ -68,18 +111,20 @@
     --sidebar-border: 240 40% 22%;
     --sidebar-ring: 239 84% 60%;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
 
-  html, body {
+  html,
+  body {
     @apply bg-background text-foreground;
-    font-family: 'Cairo', 'Tajawal', system-ui, sans-serif;
+    font-family: "Thmanyah Sans", system-ui, sans-serif;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "rlig" 1, "locl" 1;
+    font-variant-ligatures: common-ligatures contextual discretionary-ligatures;
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior-y: none;
+    text-rendering: optimizeLegibility;
   }
 
   body {
@@ -88,35 +133,69 @@
     min-height: 100vh;
   }
 
-  /* تحسين الأرقام العربية */
+  body,
+  button,
+  input,
+  select,
+  textarea {
+    font-family: "Thmanyah Sans", system-ui, sans-serif;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+
   .num-en {
-    font-feature-settings: "tnum";
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "tnum" 1, "lnum" 1;
+    font-variant-numeric: tabular-nums lining-nums;
     direction: ltr;
     display: inline-block;
   }
 
-  /* إخفاء scrollbar في الموبايل */
-  .no-scrollbar::-webkit-scrollbar { display: none; }
-  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 @layer components {
   .glow-purple {
     box-shadow: var(--shadow-glow);
   }
+
   .card-elevated {
     background: var(--gradient-surface);
     box-shadow: var(--shadow-card);
   }
+
   .gradient-text {
     background: var(--gradient-primary);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
+
+  .font-ui {
+    font-family: "Thmanyah Sans", system-ui, sans-serif;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "rlig" 1, "locl" 1, "ss01" 1;
+  }
+
+  .font-brand-display {
+    font-family: "Thmanyah Serif Display", "Thmanyah Sans", system-ui, sans-serif;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "rlig" 1, "locl" 1, "salt" 1, "ss01" 1;
+  }
 }
 
 @layer utilities {
-  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
-  .safe-top { padding-top: env(safe-area-inset-top); }
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
 }
