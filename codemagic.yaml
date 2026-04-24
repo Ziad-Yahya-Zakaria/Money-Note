@@ -1,10 +1,12 @@
 workflows:
   android-build:
     name: Android APK Build
-    max_build_duration: 60
+    max_build_duration: 120
     environment:
       vars:
         ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+        ANDROID_NDK_HOME: /usr/local/lib/android/sdk/ndk/27.0.12077973
+        NDK_HOME: /usr/local/lib/android/sdk/ndk/27.0.12077973
       node: latest
     scripts:
       - name: Install Rust
@@ -12,6 +14,10 @@ workflows:
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
           source $HOME/.cargo/env
           rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
+
+      - name: Install NDK
+        script: |
+          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "ndk;27.0.12077973"
 
       - name: Install dependencies
         script: npm install
@@ -24,15 +30,11 @@ workflows:
       - name: Build Vite
         script: npm run build
 
-      - name: Init Android
+      - name: Init and Build Android APK
         script: |
           source $HOME/.cargo/env
           cargo tauri android init
-
-      - name: Build Android APK
-        script: |
-          source $HOME/.cargo/env
-          cargo tauri android build
+          cargo tauri android build --apk
 
     artifacts:
       - src-tauri/gen/android/app/build/outputs/apk/**/*.apk
