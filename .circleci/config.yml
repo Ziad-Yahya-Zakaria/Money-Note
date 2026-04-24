@@ -8,16 +8,22 @@ jobs:
       - checkout
       
       - run:
-          name: Install Rust and Tauri
+          name: Install Rust and Android NDK
           command: |
-            # تثبيت Rust
+            # 1. تثبيت Rust
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
             source $HOME/.cargo/env
-            
-            # إضافة أهداف الأندرويد لـ Rust
             rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
             
-            # تثبيت Tauri CLI
+            # 2. تثبيت الـ NDK وتجهيز المسارات
+            # بنستخدم sdkmanager لتثبيت نسخة مستقرة من الـ NDK
+            yes | sdkmanager --install "ndk;26.1.10909125"
+            
+            # تعريف المتغيرات للنظام عشان Tauri يشوف الـ NDK
+            echo 'export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/26.1.10909125' >> $BASH_ENV
+            echo 'export NDK_HOME=$ANDROID_HOME/ndk/26.1.10909125' >> $BASH_ENV
+            
+            # 3. تثبيت Tauri CLI
             sudo npm install -g @tauri-apps/cli
 
       - run:
@@ -29,9 +35,10 @@ jobs:
           name: Initialize and Build Signed APK
           command: |
             source $HOME/.cargo/env
+            # تفعيل مسارات الـ NDK في هذه الخطوة أيضاً
+            source $BASH_ENV
             
-            # خطوة مهمة: تجهيز مجلد الأندرويد لو مش موجود
-            # --ci بتخلي الأمر يشتغل أوتوماتيك من غير تدخل بشري
+            # تجهيز المشروع
             tauri android init --ci
             
             # إعدادات التوقيع
