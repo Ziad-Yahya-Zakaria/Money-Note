@@ -8,32 +8,39 @@ jobs:
       - checkout
       
       - run:
-          name: Setup Environment
+          name: Setup Environment (Java & Rust)
           command: |
-            # تحديث النظام وتثبيت الجافا المطلوبة للأندرويد
             sudo apt-get update
             sudo apt-get install -y openjdk-17-jdk
-            # تثبيت أداة Tauri عالمياً
+            
+            # تثبيت لغة Rust (محرك Tauri الأساسي)
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+            # تفعيل Rust في الجلسة الحالية
+            echo 'source $HOME/.cargo/env' >> $BASH_ENV
+            source $HOME/.cargo/env
+            
+            # إضافة أهداف بناء الأندرويد لـ Rust
+            rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
+            
             sudo npm install -g @tauri-apps/cli
 
       - run:
           name: Install Project Dependencies
           command: |
-            # تنظيف المجلدات لضمان تثبيت سليم للملفات الأصلية (Native Bindings)
             rm -rf node_modules package-lock.json
-            # تثبيت المكتبات مع تحديد نوع النظام لضمان تحميل ملفات Linux x64
             sudo npm install --include=optional --platform=linux --arch=x64
 
       - run:
           name: Build Signed APK
           command: |
-            # ربط متغيرات البيئة السرية من CircleCI ببيئة بناء Tauri
+            # تفعيل Rust مرة أخرى للتأكد
+            source $HOME/.cargo/env
+            
             export TAURI_ANDROID_KEYSTORE_PATH="$CIRCLE_WORKING_DIRECTORY/my-release-key.keystore"
             export TAURI_ANDROID_KEYSTORE_PASSWORD=$ANDROID_KEYSTORE_PASSWORD
             export TAURI_ANDROID_KEY_ALIAS=$ANDROID_KEY_ALIAS
             export TAURI_ANDROID_KEY_PASSWORD=$ANDROID_KEY_PASSWORD
             
-            # تنفيذ أمر البناء مع الإصلاح (استخدام -- مرتين قبل release)
             sudo tauri android build --apk -- --release
 
       - store_artifacts:
