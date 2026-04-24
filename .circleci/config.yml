@@ -3,7 +3,6 @@ version: 2.1
 jobs:
   build-android:
     docker:
-      # صورة مجهزة بـ Android SDK و Java
       - image: cimg/android:2024.01-node
     steps:
       - checkout
@@ -27,10 +26,13 @@ jobs:
             npm install --include=optional --platform=linux --arch=x64
 
       - run:
-          name: Build Signed APK
+          name: Initialize and Build Signed APK
           command: |
-            # تفعيل Rust للتأكد من وجود Cargo
             source $HOME/.cargo/env
+            
+            # خطوة مهمة: تجهيز مجلد الأندرويد لو مش موجود
+            # --ci بتخلي الأمر يشتغل أوتوماتيك من غير تدخل بشري
+            tauri android init --ci
             
             # إعدادات التوقيع
             export TAURI_ANDROID_KEYSTORE_PATH="$CIRCLE_WORKING_DIRECTORY/my-release-key.keystore"
