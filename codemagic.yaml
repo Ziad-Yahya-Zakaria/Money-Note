@@ -1,3 +1,41 @@
-git add codemagic.yaml
-git commit -m 'Add first workflow'
-git push
+workflows:
+  android-build:
+    name: Android APK Build
+    max_build_duration: 60
+    environment:
+      vars:
+        ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+      node: 18.x
+    scripts:
+      - name: Install Rust
+        script: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          source $HOME/.cargo/env
+          rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
+
+      - name: Install dependencies
+        script: npm install
+
+      - name: Install Tauri CLI
+        script: |
+          source $HOME/.cargo/env
+          cargo install tauri-cli --version "^2.0"
+
+      - name: Build Vite
+        script: npm run build
+
+      - name: Init & Build Android APK
+        script: |
+          source $HOME/.cargo/env
+          cargo tauri android build
+
+    artifacts:
+      - src-tauri/gen/android/app/build/outputs/apk/**/*.apk
+
+    publishing:
+      email:
+        recipients:
+          - zidplgoog@gmail.com
+        notify:
+          success: true
+          failure: true
