@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">موني نوت</string>
+    <string name="title_activity_main">موني نوت</string>
+    <string name="package_name">com.ziadyahya.moneynote</string>
+    <string name="custom_url_scheme">com.ziadyahya.moneynote</string>
+</resources>
